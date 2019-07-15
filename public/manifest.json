@@ -1,6 +1,6 @@
 {
-  "name": "minimal-electron-overlay",
-  "short_name": "minimal-electron-overlay",
+  "name": "elite-dangerous-assistant",
+  "short_name": "elite-dangerous-assistant",
   "icons": [
     {
       "src": "./img/icons/android-chrome-192x192.png",

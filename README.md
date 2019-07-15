@@ -1,4 +1,4 @@
-# minimal-electron-overlay
+# elite-dangerous-assistant
 
 ## Project setup
 ```
