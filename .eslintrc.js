@@ -1,22 +1,22 @@
 module.exports = {
     'env': {
-      'browser': true,
-      'node': true,
-      'commonjs': true,
-      'es6': true,
-      'jest': true
+        'browser': true,
+        'node': true,
+        'commonjs': true,
+        'es6': true,
+        'jest': true
     },
     'extends': [
-      'standard'
+        'standard'
     ],
     'globals': {
-      'Atomics': 'readonly',
-      'SharedArrayBuffer': 'readonly'
+        'Atomics': 'readonly',
+        'SharedArrayBuffer': 'readonly'
     },
     'parserOptions': {
-      'ecmaVersion': 2018
+        'ecmaVersion': 2018
     },
     'rules': {
-      "indent": ["error", 4],
+        "indent": ["error", 4],
     }
-  }
+}

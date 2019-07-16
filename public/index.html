@@ -15,8 +15,13 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css">
     <style>
-        .click-on { pointer-events: all }
-        .click-through { pointer-events: none }
+        .click-through, * { pointer-events: none !important }
+        .click-on, a, input, button { pointer-events: all !important }
+
+        .theme--light {
+            background: transparent !important; 
+            background-color: transparent !important;
+        }
     </style>
 </head>
 
@@ -27,10 +32,9 @@
             Please enable it to continue.
         </strong>
     </noscript>
-    <div id="app">
-        <button class="click-on">Test click</button>
-        <a href="javascript:void(0);" class="click-on">Test click</a>
-    </div>
+    <button class="click-on">Test click</button>
+    <a href="javascript:void(0);" class="click-on">Test click</a>
+    <div id="app" class="click-through"></div>
     <!-- built files will be auto injected -->
     <script>
 
