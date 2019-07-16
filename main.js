@@ -1,5 +1,5 @@
 // eslint-disable-next-line standard/object-curly-even-spacing
-const { app, BrowserWindow, protocol /* globalShortcut, ipcMain */ } = require('electron')
+const { app, BrowserWindow, protocol, globalShortcut /* globalShortcut, ipcMain */ } = require('electron')
 const path = require('path')
 
 const DEFAULT_OVERLAY_OPTS = {
@@ -9,7 +9,10 @@ const DEFAULT_OVERLAY_OPTS = {
     frame: false,
     fullscreen: true,
     alwaysOnTop: true,
-    skipTaskbar: true
+    skipTaskbar: true,
+    webPreferences: {
+        nodeIntegration: true
+    }
 }
 
 let overlay
@@ -34,14 +37,32 @@ async function main () {
             error => console.error(error)
         )
 
-        overlay = await createOverlayLinuxFix()
-        await overlay.loadFile('dist/index.html')
-        // overlay.webContents.openDevTools()
-
         // TODO: hide window when Esc is pressed
-        // globalShortcut.register('Esc', () => {
-        //     window.hide()
-        // })
+        // let toggle = true
+        let counter = 0
+        globalShortcut.register('Escape', () => {
+            console.log('ok')
+            overlay.webContents.executeJavaScript(
+                `document.querySelector('button').innerText = '${counter++}';`,
+                false,
+                result => console.log('executeJS:', result)
+            )
+            // overlay.setIgnoreMouseEvents(toggle)
+            // toggle = !toggle
+        })
+
+        overlay = await createOverlayLinuxFix()
+
+        overlay.webContents.once('dom-ready', () => {
+            // overlay.webContents.openDevTools()
+            // overlay.webContents.executeJavaScript(
+            //     `(${contentBindPointerControl.toString()})();`,
+            //     false,
+            //     result => console.log('executeJS:', result)
+            // )
+        })
+
+        await overlay.loadFile('dist/index.html')
 
         // Emitted when the window is closed.
         overlay.on('closed', () => {
@@ -52,6 +73,24 @@ async function main () {
         })
     }
 }
+
+// const CLICKABLE_ELEMENTS = [
+//     'a',
+//     'input',
+//     'button'
+// ]
+
+// function contentBindPointerControl () {
+//     // const setIgnoreMouseEvents = require('electron').remote.getCurrentWindow().setIgnoreMouseEvents
+//     addEventListener('pointerover', function mousePolicy (event) {
+//         console.log('pointerover', event.target.tagName, event.target === document.documentElement)
+//         // mousePolicy._canClick = event.target === document.documentElement
+//         //     ? mousePolicy._canClick && setIgnoreMouseEvents(true, { forward: true })
+//         //     : mousePolicy._canClick || setIgnoreMouseEvents(false) || true
+//         // console.log('canClick', mousePolicy._canClick)
+//     })
+//     // setIgnoreMouseEvents(true, { forward: true }) // BUG: this must be triggered after the devtools loaded IF you load the console 'detached'
+// }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -76,7 +115,6 @@ async function createOverlayWindow (opts) {
         ...DEFAULT_OVERLAY_OPTS,
         ...opts
     })
-    window.setIgnoreMouseEvents(true)
     return window
 }
 
