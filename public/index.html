@@ -32,8 +32,8 @@
             Please enable it to continue.
         </strong>
     </noscript>
-    <button class="click-on">Test click</button>
-    <a href="javascript:void(0);" class="click-on">Test click</a>
+    <!-- <button class="click-on">Test click</button>
+    <a href="javascript:void(0);" class="click-on">Test click</a> -->
     <div id="app" class="click-through"></div>
     <!-- built files will be auto injected -->
     <script>
@@ -43,6 +43,9 @@
             // log: true,
             fixPointerEvents: 'auto'
         })
+
+        window.GameEventSink = require('./lib/game/GameEventSink')
+        window.GameEventStream = require('./lib/game/GameEventStream')
 
     </script>
 </body>

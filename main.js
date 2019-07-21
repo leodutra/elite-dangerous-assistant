@@ -8,8 +8,8 @@ const DEFAULT_OVERLAY_OPTS = {
     height: 600,
     frame: false,
     fullscreen: true,
-    alwaysOnTop: true,
-    skipTaskbar: true,
+    alwaysOnTop: false,
+    skipTaskbar: false,
     webPreferences: {
         nodeIntegration: true
     }
@@ -41,7 +41,6 @@ async function main () {
         // let toggle = true
         let counter = 0
         globalShortcut.register('Escape', () => {
-            console.log('ok')
             overlay.webContents.executeJavaScript(
                 `document.querySelector('button').innerText = '${counter++}';`,
                 false,
@@ -54,7 +53,7 @@ async function main () {
         overlay = await createOverlayLinuxFix()
 
         overlay.webContents.once('dom-ready', () => {
-            // overlay.webContents.openDevTools()
+            overlay.webContents.openDevTools()
             // overlay.webContents.executeJavaScript(
             //     `(${contentBindPointerControl.toString()})();`,
             //     false,
