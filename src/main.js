@@ -5,8 +5,11 @@ import store from './store'
 import './registerServiceWorker'
 import vuetify from './plugins/vuetify'
 import { journalLocation } from '../config'
+import GameEventSink from './lib/game/GameEventSink'
+import GameEventStream from './lib/game/GameEventStream'
 
 Vue.config.productionTip = false
+Vue.config.devtools = true
 
 new Vue({
     router,
@@ -16,4 +19,4 @@ new Vue({
 }).$mount('#app')
 
 // eslint-disable-next-line no-new
-new window.GameEventSink(store, new window.GameEventStream(journalLocation))
+new GameEventSink(store, new GameEventStream(journalLocation))

@@ -1,4 +1,4 @@
-module.exports = class Location {
+export default class Location {
     constructor (location) {
         this.name = location.name
         this.type = location.type

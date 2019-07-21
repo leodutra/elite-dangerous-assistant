@@ -1,4 +1,4 @@
-module.exports = class Mission {
+export default class Mission {
     constructor (mission) {
         this.id = mission.id
         this.name = mission.name

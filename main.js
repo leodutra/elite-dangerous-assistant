@@ -3,11 +3,11 @@ const { app, BrowserWindow, protocol, globalShortcut /* globalShortcut, ipcMain 
 const path = require('path')
 
 const DEFAULT_OVERLAY_OPTS = {
-    transparent: true,
+    transparent: false,
     width: 800,
     height: 600,
-    frame: false,
-    fullscreen: true,
+    frame: true,
+    fullscreen: false,
     alwaysOnTop: false,
     skipTaskbar: false,
     webPreferences: {
@@ -20,6 +20,8 @@ let overlay
 // Use Ctrl+Q to quit
 
 async function main () {
+    // Install Vue.js devtools
+    require('vue-devtools').install()
     if (overlay == null) {
         const htmlRootDir = 'dist/'
         const indexFile = 'index.html'
