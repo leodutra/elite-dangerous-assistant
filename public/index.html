@@ -15,10 +15,14 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@latest/css/materialdesignicons.min.css">
     <style>
+        /* OVERLAY */
         .click-through, * { pointer-events: none !important }
         .click-on, a, input, button { pointer-events: all !important }
 
-        .theme--light {
+        /* VUETIFY */
+        html { overflow: hidden !important }
+        .theme--light,
+        .theme--dark {
             background: transparent !important; 
             background-color: transparent !important;
         }

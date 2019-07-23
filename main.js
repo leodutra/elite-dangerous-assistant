@@ -3,12 +3,12 @@ const { app, BrowserWindow, protocol, globalShortcut /* globalShortcut, ipcMain 
 const path = require('path')
 
 const DEFAULT_OVERLAY_OPTS = {
-    transparent: false,
+    transparent: true,
     width: 800,
     height: 600,
-    frame: true,
-    fullscreen: false,
-    alwaysOnTop: false,
+    frame: false,
+    fullscreen: true,
+    alwaysOnTop: true,
     skipTaskbar: false,
     webPreferences: {
         nodeIntegration: true
@@ -21,7 +21,7 @@ let overlay
 
 async function main () {
     // Install Vue.js devtools
-    require('vue-devtools').install()
+    // require('vue-devtools').install()
     if (overlay == null) {
         const htmlRootDir = 'dist/'
         const indexFile = 'index.html'
@@ -41,21 +41,22 @@ async function main () {
 
         // TODO: hide window when Esc is pressed
         // let toggle = true
-        let counter = 0
-        globalShortcut.register('Escape', () => {
-            overlay.webContents.executeJavaScript(
-                `document.querySelector('button').innerText = '${counter++}';`,
-                false,
-                result => console.log('executeJS:', result)
-            )
-            // overlay.setIgnoreMouseEvents(toggle)
-            // toggle = !toggle
-        })
+        // let counter = 0
+        // globalShortcut.register('Escape', () => {
+        //     overlay.webContents.executeJavaScript(
+        //         `document.querySelector('button').innerText = '${counter++}';`,
+        //         false,
+        //         result => console.log('executeJS:', result)
+        //     )
+        //     // overlay.setIgnoreMouseEvents(toggle)
+        //     // toggle = !toggle
+        // })
 
         overlay = await createOverlayLinuxFix()
 
         overlay.webContents.once('dom-ready', () => {
-            overlay.webContents.openDevTools()
+            overlay.setIgnoreMouseEvents(true)
+            // overlay.webContents.openDevTools()
             // overlay.webContents.executeJavaScript(
             //     `(${contentBindPointerControl.toString()})();`,
             //     false,
@@ -120,7 +121,7 @@ async function createOverlayWindow (opts) {
 }
 
 async function createOverlayLinuxFix (opts) {
-    await wait(300) // XXX: Linux overlay fix (otherwise transparent is black)
+    await wait(1000) // XXX: Linux overlay fix (otherwise transparent is black)
     return createOverlayWindow(opts)
 }
 

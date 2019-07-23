@@ -77,6 +77,7 @@ export default new Vuex.Store({
             store.shipIsSupercruising = shipIsSupercruising
         },
         setCurrentLocation (store, currentLocation) {
+            store.lastLocation = store.currentLocation
             store.currentLocation = currentLocation
         },
         setLastLocation (store, lastLocation) {

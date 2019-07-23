@@ -15,7 +15,7 @@ export default class GameEventSink {
                 subtractCredits(store, data.Cost)
                 break
             case 'Docked':
-                store.commit('shipIsDocked', true)
+                store.commit('setShipIsDocked', true)
                 break
             case 'FSDJump':
                 store.commit('setShipJumpedDistance', data.JumpDist)
@@ -200,7 +200,7 @@ export default class GameEventSink {
                 }))
                 break
             case 'Undocked':
-                store.commit('shipIsDocked', false)
+                store.commit('setShipIsDocked', false)
                 break
             }
         })
