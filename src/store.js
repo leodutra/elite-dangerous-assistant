@@ -88,5 +88,7 @@ export default new Vuex.Store({
         }
     },
     actions: {
+        fetchBodyInfo ({ commit }, bodyName) {
+        }
     }
 })
