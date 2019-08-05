@@ -13,9 +13,12 @@
   "main": "main.js",
   "dependencies": {
     "cheerio": "^1.0.0-rc.3",
+    "damerau-levenshtein": "^1.0.5",
     "electron": "^5.0.6",
     "got": "^9.6.0",
+    "lodash": "^4.17.15",
     "node-utils": "git+ssh://git@github.com/leodutra/node-utils.git",
+    "qs": "^6.7.0",
     "register-service-worker": "^1.6.2",
     "tail": "^2.0.2",
     "vue": "^2.6.10",
