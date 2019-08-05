@@ -8,3 +8,5 @@
 - [ ] Inform about the ships sold in the current system
 - [ ] show some BOOM economy status 
 - [ ] show the nearest best site for selling the commodities stored in the player ship
+- [ ] https://elitebgs.app/api/eddb
+- [ ] https://elitebgs.app/api/ebgs

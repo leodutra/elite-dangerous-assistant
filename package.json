@@ -39,6 +39,7 @@
     "electron-transparency-mouse-fix": "^1.0.0-beta",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
+    "pkg": "^4.4.0",
     "sass": "^1.22.7",
     "sass-loader": "^7.1.0",
     "stylus": "^0.54.5",

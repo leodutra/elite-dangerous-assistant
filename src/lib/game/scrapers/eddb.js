@@ -35,7 +35,11 @@ function normalizeWords(text) {
 }
 
 function $textNodes($) {
-    return $.contents().filter(() => this.nodeType === Node.TEXT_NODE)
+    return $.contents().filter((i, el) => el.nodeType === 3)
+}
+
+async function fetch(url, opts) {
+    return (await got(url, { json: true, ...opts })).body
 }
 
 async function searchBodies(name, systemName) {
@@ -46,11 +50,9 @@ async function searchBodies(name, systemName) {
         },
         _: Date.now()
     }
-    const results =  (await got(
-        'http://eddb.io/body/search?' + qs.stringify(query), 
-        { json: true }
-    )).body
+    const results = await fetch('http://eddb.io/body/search?' + qs.stringify(query))
     if (systemName) {
+        console.log(results)
         return searchSortedByProperty(systemName, 'systemName', results)
     }
     return results
@@ -65,10 +67,7 @@ async function searchStations(name, systemName) {
         expand: 'system',
         _: Date.now()
     }
-    const results = (await got(
-        'http://eddb.io/station/search?' + qs.stringify(query), 
-        { json: true }
-    )).body
+    const results = await fetch('http://eddb.io/station/search?' + qs.stringify(query))
     if (systemName) {
         return searchSortedByProperty(systemName, 'system.name', results)
     }
@@ -84,24 +83,21 @@ async function searchSystems(systemName) {
         expand: 'stations',
         _: Date.now()
     }
-    return (await got(
-        'http://eddb.io/system/search?' + qs.stringify(query), 
-        { json: true }
-    )).body
+    return fetch('http://eddb.io/system/search?' + qs.stringify(query))
 }
 
 async function fetchSystemDetails(systemName) {
-    const systems = await searchSystem(systemName)
+    const systems = await searchSystems(systemName)
     return (await new SystemDetails(systems[0].id).load()).scrapData()
 }
 
 async function fetchBodyDetails(bodyName, systemName) {
-    const bodies = await searchBody(bodyName, systemName)
+    const bodies = await searchBodies(bodyName, systemName)
     return (await new BodyDetails(bodies[0].id).load()).scrapData()
 }
 
 async function fetchStationDetails(stationName, systemName) {
-    const stations = await searchStation(stationName, systemName)
+    const stations = await searchStations(stationName, systemName)
     return (await new StationDetails(stations[0].id).load()).scrapData()
 }
 
@@ -118,6 +114,17 @@ class SystemDetails extends WebPage {
         }
         return results
     }
+    $stations = () => $('.stationTypeGroup')
+        .parent()
+        .find('> tr:not(".stationTypeGroup") > td')
+        .map((i, el) => {
+            const $station = this.$(el)
+            const textNodes = $textNodes($station)
+            return {
+                name: $station.find('> strong > a').text(),
+                sizeAndDistance: textNodes.text().trim().replace(/\s+/m, ' ')
+            }
+        }).get()
     
     constructor (systemId) {
         super(`https://eddb.io/system/${systemId}`)
@@ -127,13 +134,78 @@ class SystemDetails extends WebPage {
         return {
             ...this.$properties(),
             name: this.$name(),
-            type: this.$type()
+            type: this.$type(),
+            stations: this.$stations()
         }
     }
 }
 
 class BodyDetails extends WebPage {
 
+    $name = () => $textNodes(this.$('.page-header > h1')).text().trim()
+    $type = () => $textNodes(this.$('.page-header > h1 > .prefix')).text().trim()
+    $properties = () => {
+        const results = {}
+        for (const el of this.$('.panel-body .body-property-label').get()) {
+            const $property = this.$(el)
+            results[camelCase($property.text().trim())] = 
+                $property.next('.body-property-value').text().trim()
+        }
+        return results
+    }
+
+    $stations = () => this.$('.stationTypeGroup')
+        .parent()
+        .find('> tr:not(".stationTypeGroup") > td')
+        .map((i, el) => {
+            const $station = this.$(el)
+            const textNodes = $textNodes($station)
+            return {
+                name: $station.find('> strong > a').text(),
+                sizeAndDistance: textNodes.text().trim().replace(/\s+/m, ' ')
+            }
+        }).get()
+
+    $materials = () => this.$('.material-outer').map((i, el) => {
+            const $material = this.$(el)
+            const probability = () => {
+                const matches = $material.text().match(/\(([^%]+?%)\)/m)
+                return matches ? matches[1] : null
+            }
+            return {
+                name: el.title,
+                probability: probability(),
+                rarity: this.$rarity($material)
+            }
+        }).get()
+
+    $rarity = $material => {
+        const rarityClasses = {
+            'material-rarity-group-10': 'Very common',
+            'material-rarity-group-20': 'Common',
+            'material-rarity-group-30': 'Standard',
+            'material-rarity-group-40': 'Rare',
+            'material-rarity-group-50': 'Very rare'
+        }
+        return $material.get(0).classList.find(class_ => rarityClasses[class_])
+    }    
+    
+    constructor (bodyId) {
+        super(`https://eddb.io/body/${bodyId}`)
+    }
+
+    scrapData () {
+        return {
+            ...this.$properties(),
+            name: this.$name(),
+            type: this.$type(),
+            stations: this.$stations(),
+            materials: this.$materials()
+        }
+    }
+}
+
+class StationDetails extends WebPage {
     $name = () => $textNodes(this.$('.page-header > h1')).text().trim()
     $type = () => $textNodes(this.$('.page-header > h1 > .prefix')).text().trim()
     $properties = () => {
@@ -145,87 +217,8 @@ class BodyDetails extends WebPage {
         }
         return results
     }
-    
-    constructor (bodyId) {
-        super(`https://eddb.io/body/${bodyId}`)
-    }
-
-    scrapData () {
-        return {
-            ...this.$properties(),
-            name: this.$name(),
-            type: this.$type()
-        }
-    }
-
-
-
-    $bodyName = () => this.$('.page-header > h1').text().trim()
-    $property = property => {
-        property = property.trim().toLowerCase()
-        this.$('.body-property-label').filter(
-            (i, el) => $(el)
-                .text()
-                .trim()
-                .toLowerCase()
-                .indexOf(property) !== -1
-            )
-            .next('.body-property-value')
-            .text()
-            .trim()
-    }
-    $stations = () => this.$property('stations')
-    // $isLandable = () => 
-    $materials = () => this.$('.material-inner')
-    $rarity = $material => {
-        const rarityClasses = {
-            'material-rarity-group-10': 'Very common',
-            'material-rarity-group-20': 'Common',
-            'material-rarity-group-30': 'Standard',
-            'material-rarity-group-40': 'Rare',
-            'material-rarity-group-50': 'Very rare'
-        }
-        return $material.get(0).classList.find(class_ => rarityClasses[class_])
-    }
-
-    constructor (bodyId) {
-        super(`https://eddb.io/body/${bodyId}`)
-    }
-
-    scrapData () {
-        return this.$materials().map((i, el) => {
-            const $materials = this.$(el)
-            const [_, name, probability] = $materials
-                .text()
-                .match(/([^(]+)(?:\(([^)]+)\))?/im)
-            return {
-                name,
-                probability,
-                rarity: this.$rarity($materials)
-            }
-        }).get()
-    }
-}
-
-class StationDetails extends WebPage {
-
-    $bodyName = () => this.$('.page-header > h1').text().trim()
-    $bodyType = () => this.$('.page-header > h1 > prefix').text().trim()
     $isScoopable = () => 
         this.$('.page-header > h1').text().trim().toLowerCase().indexOf('scoopable') !== -1
-    $property = property => {
-        property = property.trim().toLowerCase()
-        this.$('.label-name').filter(
-            (i, el) => $(el)
-                .text()
-                .trim()
-                .toLowerCase()
-                .indexOf(property) !== -1
-            )
-            .next('.label-value')
-            .text()
-            .trim()
-    }
     $facilities = () => this.$('.facilities > .facility.yes')
 
     constructor (stationId) {
@@ -233,17 +226,13 @@ class StationDetails extends WebPage {
     }
 
     scrapData () {
-        return this.$materials.map((i, el) => {
-            const $materials = this.$(el)
-            const [_, name, probability] = $materials
-                .text()
-                .match(/([^(]+)(?:\(([^)]+)\))?/im)
-            return {
-                name,
-                probability,
-                facilities: this.$facilities()
-            }
-        }).get()
+        return {
+            ...this.$properties(),
+            name: this.$name(),
+            type: this.$type(),
+            isScoopable: this.$isScoopable(),
+            facilities: this.$facilities()
+        }
     }
 }
 
@@ -259,7 +248,7 @@ module.exports = {
 if (require.main === module) {
     (async () => {
         try {
-            const bodies = await searchBodies('Gungnir 6 D', 'Gungn')
+            const bodies = await fetchBodyDetails('Gungnir 6 D', 'Gungn')
             console.log(bodies)
         }
         catch(error) {
