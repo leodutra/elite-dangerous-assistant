@@ -81,10 +81,10 @@ async function searchStations(name, systemName) {
     return results
 }
 
-async function searchSystems(systemName) {
+async function searchSystems(name) {
     const query = {
         system: {
-            name: systemName,
+            name,
             version: 2
         },
         expand: 'stations',
@@ -114,14 +114,14 @@ class SystemDetails extends WebPage {
     $type = () => $textNodes(this.$('.page-header > h1 > .prefix')).text().trim()
     $properties = () => {
         const results = {}
-        for (const el of this.$('.panel-body .label-name')) {
+        for (const el of this.$('.panel-body .label-name').get()) {
             const $property = this.$(el)
             results[camelCase($property.text().trim())] = 
                 sanitizeHTML($property.next('.label-value').html()).trim()
         }
         return results
     }
-    $stations = () => $('.stationTypeGroup')
+    $stations = () => this.$('.stationTypeGroup')
         .parent()
         .find('> tr:not(".stationTypeGroup") > td')
         .map((i, el) => {
@@ -271,7 +271,7 @@ module.exports = {
 if (require.main === module) {
     (async () => {
         try {
-            const bodies = await fetchBodyDetails('Gungnir 6 D', 'Gungn')
+            const bodies = await fetchSystemDetails('kokokomi', 'Gungn')
             console.log(bodies)
         }
         catch(error) {
