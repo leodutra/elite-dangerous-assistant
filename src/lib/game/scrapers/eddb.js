@@ -3,7 +3,15 @@ const got = require('got')
 const qs = require('qs')
 const WebPage = require('./WebPage')
 const damerauLevenshtein = require('damerau-levenshtein')
-const { get, camelCase } = require('lodash')
+const { get, camelCase, trim } = require('lodash')
+const htmlToText = require('html-to-text')
+
+function sanitizeHTML(text) {
+    return htmlToText.fromString(text, {
+        ignoreHref: true,
+        ignoreImage: true
+    })
+}
 
 function searchSortedByProperty(search, property, array) {
     const searchWords = normalizeWords(search)
@@ -52,7 +60,6 @@ async function searchBodies(name, systemName) {
     }
     const results = await fetch('http://eddb.io/body/search?' + qs.stringify(query))
     if (systemName) {
-        console.log(results)
         return searchSortedByProperty(systemName, 'systemName', results)
     }
     return results
@@ -110,7 +117,7 @@ class SystemDetails extends WebPage {
         for (const el of this.$('.panel-body .label-name')) {
             const $property = this.$(el)
             results[camelCase($property.text().trim())] = 
-                $property.next('.label-value').text().trim()
+                sanitizeHTML($property.next('.label-value').html()).trim()
         }
         return results
     }
@@ -149,10 +156,13 @@ class BodyDetails extends WebPage {
         for (const el of this.$('.panel-body .body-property-label').get()) {
             const $property = this.$(el)
             results[camelCase($property.text().trim())] = 
-                $property.next('.body-property-value').text().trim()
+                sanitizeHTML($property.next('.body-property-value').html()).trim()
         }
         return results
     }
+
+    $isScoopable = () => 
+        this.$('.page-header > h1').text().trim().toLowerCase().includes('scoopable')
 
     $stations = () => this.$('.stationTypeGroup')
         .parent()
@@ -195,12 +205,15 @@ class BodyDetails extends WebPage {
     }
 
     scrapData () {
+        const properties = this.$properties()
         return {
-            ...this.$properties(),
+            ...properties,
             name: this.$name(),
             type: this.$type(),
             stations: this.$stations(),
-            materials: this.$materials()
+            materials: this.$materials(),
+            isScoopable: this.$isScoopable(),
+            system: trim(properties.system).replace(/\s+-\s+all\s+bodies.*/im, '')
         }
     }
 }
@@ -213,25 +226,35 @@ class StationDetails extends WebPage {
         for (const el of this.$('.panel-body .label-name')) {
             const $property = this.$(el)
             results[camelCase($property.text().trim())] = 
-                $property.next('.label-value').text().trim()
+                sanitizeHTML($property.next('.label-value').html()).trim()
         }
         return results
     }
-    $isScoopable = () => 
-        this.$('.page-header > h1').text().trim().toLowerCase().indexOf('scoopable') !== -1
-    $facilities = () => this.$('.facilities > .facility.yes')
+    $facilities = () => {
+        const facilities = {}
+        for (const el of this.$('.facilities > .facility').get()) {
+            const $facility = this.$(el)
+            facilities[camelCase($facility.text().trim())] = $facility.hasClass('yes')
+        }
+        return facilities
+    }
+
+    $description = () => this.$('.body-description').text().trim()
 
     constructor (stationId) {
         super(`https://eddb.io/station/${stationId}`)
     }
 
     scrapData () {
+        const properties = this.$properties()
         return {
-            ...this.$properties(),
+            ...properties,
             name: this.$name(),
             type: this.$type(),
             isScoopable: this.$isScoopable(),
-            facilities: this.$facilities()
+            facilities: this.$facilities(),
+            description: this.$description(),
+            system: trim(properties.system).replace(/\s+-s+all\s+bodies/im, '')
         }
     }
 }
