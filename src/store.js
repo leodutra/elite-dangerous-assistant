@@ -20,7 +20,7 @@ export default new Vuex.Store({
         shipFuelUsed: 0,
         shipJumpedDistance: 0,
         shipJumpBoostUsed: false,
-        shipInventory: [],
+        inventory: [],
         shipIsDocked: false,
         shipIsSupercruising: false,
         currentLocation: null,
@@ -67,8 +67,8 @@ export default new Vuex.Store({
         setShipJumpBoostUsed (store, shipJumpBoostUsed) {
             store.shipJumpBoostUsed = shipJumpBoostUsed
         },
-        setShipInventory (store, shipInventory) {
-            store.shipInventory = shipInventory
+        setInventory (store, inventory) {
+            store.inventory = inventory
         },
         setShipIsDocked (store, shipIsDocked) {
             store.shipIsDocked = shipIsDocked
