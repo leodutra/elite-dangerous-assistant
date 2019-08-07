@@ -3,6 +3,13 @@
         <v-layout row wrap>
             <v-flex xs12>
                 <div>Ship: {{shipType}}</div>
+                <div class="d-flex align-center">
+                    <span>Fuel:</span>
+                    <v-progress-linear
+                        :value="fuelValue"
+                        class="fuel-bar"
+                    />
+                </div>
                 <div>Fuel level: {{shipFuelLevel}}</div>
                 <div>Fuel used: {{shipFuelUsed}}</div>
                 <div>Docked: {{shipIsDocked}}</div>
@@ -24,15 +31,22 @@ export default {
             'shipType',
             'shipFuelLevel',
             'shipFuelUsed',
+            'shipFuelTotal',
             'shipIsDocked',
             'shipIsSupercruising',
             'shipJumpedDistance',
             'shipJumpBoostUsed'
-        ])
+        ]),
+        fuelValue () {
+            return this.shipFuelLevel / this.shipFuelTotal
+        } 
     }
 }
 </script>
 
 <style scoped lang="sass">
 
+    .fuel-bar
+        margin-left: 8px
+        max-width: 200px
 </style>

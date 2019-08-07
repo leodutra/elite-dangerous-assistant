@@ -18,6 +18,7 @@ export default new Vuex.Store({
         shipId: '',
         shipFuelLevel: 0,
         shipFuelUsed: 0,
+        shipFuelTotal: 0,
         shipJumpedDistance: 0,
         shipJumpBoostUsed: false,
         inventory: [],
@@ -28,63 +29,64 @@ export default new Vuex.Store({
         approachedSettlement: ''
     },
     mutations: {
-        setCommanderName (store, commanderName) {
-            store.commanderName = commanderName
+        setCommanderName (state, commanderName) {
+            state.commanderName = commanderName
         },
-        setCommanderNotoriety (store, commanderNotoriety) {
-            store.commanderNotoriety = commanderNotoriety
+        setCommanderNotoriety (state, commanderNotoriety) {
+            state.commanderNotoriety = commanderNotoriety
         },
-        setCommanderCredits (store, commanderCredits) {
-            store.commanderCredits = commanderCredits
+        setCommanderCredits (state, commanderCredits) {
+            state.commanderCredits = commanderCredits
         },
-        setCommanderLoan (store, commanderLoan) {
-            store.commanderLoan = commanderLoan
+        setCommanderLoan (state, commanderLoan) {
+            state.commanderLoan = commanderLoan
         },
-        setCommanderMissions (store, commanderMissions) {
-            store.commanderMissions = commanderMissions
+        setCommanderMissions (state, commanderMissions) {
+            state.commanderMissions = commanderMissions
         },
-        setCommanderMaterials (store, commanderMaterials) {
-            store.commanderMaterials = commanderMaterials
+        setCommanderMaterials (state, commanderMaterials) {
+            state.commanderMaterials = commanderMaterials
         },
-        setGameMode (store, gameMode) {
-            store.gameMode = gameMode
+        setGameMode (state, gameMode) {
+            state.gameMode = gameMode
         },
-        setShipType (store, shipType) {
-            store.shipType = shipType
+        setShipType (state, shipType) {
+            state.shipType = shipType
         },
-        setShipId (store, shipId) {
-            store.shipId = shipId
+        setShipId (state, shipId) {
+            state.shipId = shipId
         },
-        setShipFuelLevel (store, shipFuelLevel) {
-            store.shipFuelLevel = shipFuelLevel
+        setShipFuelLevel (state, shipFuelLevel) {
+            state.shipFuelLevel = shipFuelLevel
         },
-        setShipFuelUsed (store, shipFuelUsed) {
-            store.shipFuelUsed = shipFuelUsed
+        setShipFuelUsed (state, shipFuelUsed) {
+            state.shipFuelUsed = shipFuelUsed
+            state.shipFuelTotal = state.shipFuelLevel + shipFuelUsed
         },
-        setShipJumpedDistance (store, shipJumpedDistance) {
-            store.shipJumpedDistance = shipJumpedDistance
+        setShipJumpedDistance (state, shipJumpedDistance) {
+            state.shipJumpedDistance = shipJumpedDistance
         },
-        setShipJumpBoostUsed (store, shipJumpBoostUsed) {
-            store.shipJumpBoostUsed = shipJumpBoostUsed
+        setShipJumpBoostUsed (state, shipJumpBoostUsed) {
+            state.shipJumpBoostUsed = shipJumpBoostUsed
         },
-        setInventory (store, inventory) {
-            store.inventory = inventory
+        setInventory (state, inventory) {
+            state.inventory = inventory
         },
-        setShipIsDocked (store, shipIsDocked) {
-            store.shipIsDocked = shipIsDocked
+        setShipIsDocked (state, shipIsDocked) {
+            state.shipIsDocked = shipIsDocked
         },
-        setShipIsSupercruising (store, shipIsSupercruising) {
-            store.shipIsSupercruising = shipIsSupercruising
+        setShipIsSupercruising (state, shipIsSupercruising) {
+            state.shipIsSupercruising = shipIsSupercruising
         },
-        setCurrentLocation (store, currentLocation) {
-            store.lastLocation = store.currentLocation
-            store.currentLocation = currentLocation
+        setCurrentLocation (state, currentLocation) {
+            state.lastLocation = state.currentLocation
+            state.currentLocation = currentLocation
         },
-        setLastLocation (store, lastLocation) {
-            store.lastLocation = lastLocation
+        setLastLocation (state, lastLocation) {
+            state.lastLocation = lastLocation
         },
-        setApproachedSettlement (store, approachedSettlement) {
-            store.approachedSettlement = approachedSettlement
+        setApproachedSettlement (state, approachedSettlement) {
+            state.approachedSettlement = approachedSettlement
         }
     },
     actions: {
