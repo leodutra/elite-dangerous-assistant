@@ -50,6 +50,18 @@ async function fetch(url, opts) {
     return (await got(url, { json: true, ...opts })).body
 }
 
+async function searchSystems(name) {
+    const query = {
+        system: {
+            name,
+            version: 2
+        },
+        expand: 'stations',
+        _: Date.now()
+    }
+    return fetch('http://eddb.io/system/search?' + qs.stringify(query))
+}
+
 async function searchBodies(name, systemName) {
     const query = {
         body: {
@@ -81,16 +93,9 @@ async function searchStations(name, systemName) {
     return results
 }
 
-async function searchSystems(name) {
-    const query = {
-        system: {
-            name,
-            version: 2
-        },
-        expand: 'stations',
-        _: Date.now()
-    }
-    return fetch('http://eddb.io/system/search?' + qs.stringify(query))
+async function searchCommodities(name) {
+    const commodities = (await new Commodities().load()).scrapData()
+    return searchSortedByProperty(name, 'name', commodities)
 }
 
 async function fetchSystemDetails(systemName) {
@@ -111,10 +116,16 @@ async function fetchStationDetails(stationName, systemName) {
     return (await new StationDetails(stations[0].id).load()).scrapData()
 }
 
+async function fetchCommodityDetails(commodityName) {
+    const commodities = await searchCommodities(commodityName)
+    if (commodities.length === 0) return null
+    return (await new CommodityDetails(commodities[0].id).load()).scrapData()
+}
+
 class SystemDetails extends WebPage {
 
     $name = () => $textNodes(this.$('.page-header > h1')).text().trim()
-    $type = () => $textNodes(this.$('.page-header > h1 > .prefix')).text().trim()
+    $type = () => this.$('.page-header > h1 > .prefix').text().trim()
     $properties = () => {
         const results = {}
         for (const el of this.$('.panel-body .label-name').get()) {
@@ -153,7 +164,7 @@ class SystemDetails extends WebPage {
 class BodyDetails extends WebPage {
 
     $name = () => $textNodes(this.$('.page-header > h1')).text().trim()
-    $type = () => $textNodes(this.$('.page-header > h1 > .prefix')).text().trim()
+    $type = () => this.$('.page-header > h1 > .prefix').text().trim()
     $properties = () => {
         const results = {}
         for (const el of this.$('.panel-body .body-property-label').get()) {
@@ -223,7 +234,7 @@ class BodyDetails extends WebPage {
 
 class StationDetails extends WebPage {
     $name = () => $textNodes(this.$('.page-header > h1')).text().trim()
-    $type = () => $textNodes(this.$('.page-header > h1 > .prefix')).text().trim()
+    $type = () => this.$('.page-header > h1 > .prefix').text().trim()
     $properties = () => {
         const results = {}
         for (const el of this.$('.panel-body .label-name')) {
@@ -262,19 +273,71 @@ class StationDetails extends WebPage {
     }
 }
 
+class Commodities extends WebPage {
+    $commodities = () => this.$('#commodities-table > tbody > tr > td > a')
+        .map((i, el) => { 
+            const $el = this.$(el)
+            return {
+                name: $el.text(),
+                id: Number($el.attr('href').replace(/[^0-9]/gim, ''))
+            }
+        })
+        .get()
+    
+    constructor () {
+        super(`https://eddb.io/commodity`)
+    }
+
+    scrapData () {
+        return this.$commodities()
+    }
+}
+
+class CommodityDetails extends WebPage {
+
+    $name = () => $textNodes(this.$('.page-header > h1')).text().trim()
+    $type = () => this.$('.page-header > h1 > .prefix').text().trim()
+    $groupType = () => this.$('.page-header > h1 > small').text().trim()
+    $properties = () => {
+        const results = {}
+        for (const el of this.$('.commodity-overview .overview-label').get()) {
+            const $property = this.$(el)
+            results[camelCase($property.text().trim())] = 
+                sanitizeHTML($property.next('.overview-value').html()).trim()
+        }
+        return results
+    }
+    
+    constructor (commodityId) {
+        super(`https://eddb.io/commodity/${commodityId}`)
+    }
+
+    scrapData () {
+        return {
+            ...this.$properties(),
+            name: this.$name(),
+            type: this.$type(),
+            group: this.$groupType()
+            // TODO commodities data
+        }
+    }
+}
+
 module.exports = {
     searchSystems,
     searchBodies,
     searchStations,
+    searchCommodities,
     fetchSystemDetails,
     fetchBodyDetails,
-    fetchStationDetails
+    fetchStationDetails,
+    fetchCommodityDetails
 }
 
 if (require.main === module) {
     (async () => {
         try {
-            const bodies = await fetchSystemDetails('LHS 1004', 'Gungn')
+            const bodies = await fetchCommodityDetails('opal')
             console.log(bodies)
         }
         catch(error) {
