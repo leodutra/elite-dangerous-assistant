@@ -95,16 +95,19 @@ async function searchSystems(name) {
 
 async function fetchSystemDetails(systemName) {
     const systems = await searchSystems(systemName)
+    if (systems.length === 0) return null
     return (await new SystemDetails(systems[0].id).load()).scrapData()
 }
 
 async function fetchBodyDetails(bodyName, systemName) {
     const bodies = await searchBodies(bodyName, systemName)
+    if (bodies.length === 0) return null
     return (await new BodyDetails(bodies[0].id).load()).scrapData()
 }
 
 async function fetchStationDetails(stationName, systemName) {
     const stations = await searchStations(stationName, systemName)
+    if (stations.length === 0) return null
     return (await new StationDetails(stations[0].id).load()).scrapData()
 }
 
@@ -271,7 +274,7 @@ module.exports = {
 if (require.main === module) {
     (async () => {
         try {
-            const bodies = await fetchSystemDetails('kokokomi', 'Gungn')
+            const bodies = await fetchSystemDetails('LHS 1004', 'Gungn')
             console.log(bodies)
         }
         catch(error) {
