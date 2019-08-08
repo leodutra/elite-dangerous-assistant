@@ -26,7 +26,31 @@ export default new Vuex.Store({
         shipIsSupercruising: false,
         currentLocation: null,
         lastLocation: null,
-        approachedSettlement: ''
+        approachedSettlement: '',
+        commoditiesBestSell: {
+            voidOpal: [
+                {
+                    stationName: 'Hirata',
+                    stationId: 12121,
+                    systemId: 445,
+                    systemName: '',
+                    demand: 24,
+                    pad: 'L',
+                    sellPrice: '1,688,104 Cr',
+                    lastUpdate: '10 mins'
+                },
+                {
+                    stationName: 'Hirata',
+                    stationId: 12121,
+                    systemId: 445,
+                    systemName: '',
+                    demand: 24,
+                    pad: 'L',
+                    sellPrice: '1,688,102 Cr',
+                    lastUpdate: '1 hour'
+                }
+            ]
+        }
     },
     mutations: {
         setCommanderName (state, commanderName) {
