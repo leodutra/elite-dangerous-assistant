@@ -211,7 +211,10 @@ class BodyDetails extends WebPage {
             'material-rarity-group-40': 'Rare',
             'material-rarity-group-50': 'Very rare'
         }
-        return $material.get(0).classList.find(class_ => rarityClasses[class_])
+        return $material.attr('class')
+            .trim()
+            .split(/\s+/m)
+            .find(class_ => rarityClasses[class_])
     }    
     
     constructor (bodyId) {
@@ -237,7 +240,7 @@ class StationDetails extends WebPage {
     $type = () => this.$('.page-header > h1 > .prefix').text().trim()
     $properties = () => {
         const results = {}
-        for (const el of this.$('.panel-body .label-name')) {
+        for (const el of this.$('.panel-body .label-name').get()) {
             const $property = this.$(el)
             results[camelCase($property.text().trim())] = 
                 sanitizeHTML($property.next('.label-value').html()).trim()
@@ -265,7 +268,6 @@ class StationDetails extends WebPage {
             ...properties,
             name: this.$name(),
             type: this.$type(),
-            isScoopable: this.$isScoopable(),
             facilities: this.$facilities(),
             description: this.$description(),
             system: trim(properties.system).replace(/\s+-s+all\s+bodies/im, '')
@@ -337,8 +339,18 @@ module.exports = {
 if (require.main === module) {
     (async () => {
         try {
-            const bodies = await fetchCommodityDetails('opal')
-            console.log(bodies)
+            const system = 'sol'
+            const body = 'mercury'
+            const station = 'Ehrlich City'
+
+            const [systems, bodies, stations] = await Promise.all([
+                fetchSystemDetails(system),
+                fetchBodyDetails(body, system),
+                fetchStationDetails(station, system)
+            ])
+            console.log(`System ${system}:`, systems)
+            console.log(`Body ${body}:`, bodies)
+            console.log(`Station ${station}:`, stations)
         }
         catch(error) {
             console.error(error)
