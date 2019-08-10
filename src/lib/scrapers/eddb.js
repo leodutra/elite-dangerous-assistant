@@ -197,13 +197,13 @@ class BodyDetails extends WebPage {
                 return matches ? matches[1] : null
             }
             return {
-                name: el.title,
+                name: el.attribs.title,
                 probability: probability(),
-                rarity: this.$rarity($material)
+                rarity: this.$rarity($material.children('.material-inner'))
             }
         }).get()
 
-    $rarity = $material => {
+    $rarity = $materialInner => {
         const rarityClasses = {
             'material-rarity-group-10': 'Very common',
             'material-rarity-group-20': 'Common',
@@ -211,10 +211,15 @@ class BodyDetails extends WebPage {
             'material-rarity-group-40': 'Rare',
             'material-rarity-group-50': 'Very rare'
         }
-        return $material.attr('class')
+        const classList = ($materialInner.get(0).attribs.class || '')
             .trim()
             .split(/\s+/m)
-            .find(class_ => rarityClasses[class_])
+        for (const className of classList) {
+            if (rarityClasses[className]) {
+                return rarityClasses[className]
+            }
+        }
+        return null
     }    
     
     constructor (bodyId) {
@@ -270,7 +275,7 @@ class StationDetails extends WebPage {
             type: this.$type(),
             facilities: this.$facilities(),
             description: this.$description(),
-            system: trim(properties.system).replace(/\s+-s+all\s+bodies/im, '')
+            system: trim(properties.system).replace(/\s+all\s+bodies/im, '')
         }
     }
 }
