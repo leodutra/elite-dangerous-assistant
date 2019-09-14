@@ -14,7 +14,7 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.3",
     "damerau-levenshtein": "^1.0.5",
-    "electron": "^5.0.6",
+    "electron": "^6.0.9",
     "got": "^9.6.0",
     "html-to-text": "^5.1.1",
     "lodash": "^4.17.15",
@@ -45,7 +45,7 @@
     "sass-loader": "^7.1.0",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.2",
-    "vue-cli-plugin-vuetify": "git+https://github.com/vuetifyjs/vue-cli-plugin-vuetify.git#dev",
+    "vue-cli-plugin-vuetify": "^0.6.3",
     "vue-template-compiler": "^2.6.10",
     "vuetify-loader": "^1.2.2"
   }

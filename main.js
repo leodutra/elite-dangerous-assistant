@@ -1,6 +1,7 @@
 // eslint-disable-next-line standard/object-curly-even-spacing
 const { app, BrowserWindow, protocol, globalShortcut /* globalShortcut, ipcMain */ } = require('electron')
 const path = require('path')
+const os = require('os')
 
 const DEFAULT_OVERLAY_OPTS = {
     transparent: true,
@@ -11,29 +12,40 @@ const DEFAULT_OVERLAY_OPTS = {
     alwaysOnTop: true,
     skipTaskbar: false,
     webPreferences: {
-        nodeIntegration: true
+        nodeIntegration: true,
+        webSecurity: false
     }
 }
 
 let overlay
 
-// Use Ctrl+Q to quit
+function stripFileProtocol(url) {
+    // all urls start with 'file://'
+    // "file:///home/..."
+    // "file:///C:/Users/..."
+    if (os.platform() === 'win32') {
+        return url.trim().replace(/^file:\/\/\//im, '')
+    } else {
+        return url.trim().replace(/^file:\/\//im, '')
+    }
+}
 
 async function main () {
     // Install Vue.js devtools
     // require('vue-devtools').install()
     if (overlay == null) {
-        const htmlRootDir = 'dist/'
+        const htmlRootDir = 'dist'
         const indexFile = 'index.html'
-
+        
         protocol.interceptFileProtocol(
             'file',
             (request, callback) => {
-                const url = request.url.substr(7) // all urls start with 'file://'
+                let url = stripFileProtocol(request.url)
                 if (request.url.endsWith(indexFile)) {
                     callback(url)
                 } else {
-                    callback(path.normalize(`${__dirname}/${htmlRootDir}/${url}`))
+                    url = url.replace(/^\w+:\//im, '')
+                    callback(path.resolve(__dirname, htmlRootDir, url))
                 }
             },
             error => console.error(error)
@@ -64,7 +76,8 @@ async function main () {
             // )
         })
 
-        await overlay.loadFile('dist/index.html')
+        // await overlay.loadFile('dist/index.html')
+        await overlay.loadURL(`file://${__dirname}/dist/index.html`)
 
         // Emitted when the window is closed.
         overlay.on('closed', () => {
