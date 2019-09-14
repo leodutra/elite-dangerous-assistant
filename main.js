@@ -19,7 +19,7 @@ const DEFAULT_OVERLAY_OPTS = {
 
 let overlay
 
-function stripFileProtocol(url) {
+function stripFileProtocol (url) {
     // all urls start with 'file://'
     // "file:///home/..."
     // "file:///C:/Users/..."
@@ -36,7 +36,7 @@ async function main () {
     if (overlay == null) {
         const htmlRootDir = 'dist'
         const indexFile = 'index.html'
-        
+
         protocol.interceptFileProtocol(
             'file',
             (request, callback) => {
@@ -44,7 +44,7 @@ async function main () {
                 if (request.url.endsWith(indexFile)) {
                     callback(url)
                 } else {
-                    url = url.replace(/^\w+:\//im, '')
+                    url = url.replace(/^(\w+:)?\//im, '')
                     callback(path.resolve(__dirname, htmlRootDir, url))
                 }
             },
@@ -66,9 +66,11 @@ async function main () {
 
         overlay = await createOverlayLinuxFix()
 
+        // overlay.setAlwaysOnTop(true, 'screen-saver')
+
         overlay.webContents.once('dom-ready', () => {
-            overlay.setIgnoreMouseEvents(true)
-            // overlay.webContents.openDevTools()
+            // overlay.setIgnoreMouseEvents(true)
+            overlay.webContents.openDevTools()
             // overlay.webContents.executeJavaScript(
             //     `(${contentBindPointerControl.toString()})();`,
             //     false,
