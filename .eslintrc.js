@@ -17,6 +17,6 @@ module.exports = {
         'ecmaVersion': 2018
     },
     'rules': {
-        "indent": ["error", 4],
+        'indent': ['error', 4]
     }
 }
