@@ -15,7 +15,7 @@
     "cheerio": "^1.0.0-rc.3",
     "damerau-levenshtein": "^1.0.5",
     "electron": "^6.0.9",
-    "got": "^9.6.0",
+    "got": "^11.8.5",
     "html-to-text": "^5.1.1",
     "lodash": "^4.17.15",
     "node-utils": "git+ssh://git@github.com/leodutra/node-utils.git",
